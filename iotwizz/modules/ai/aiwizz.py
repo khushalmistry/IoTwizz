@@ -34,22 +34,22 @@ class AiWizz(BaseModule):
             "PROVIDER": {
                 "value": "gemini",
                 "required": True,
-                "description": "AI Provider (gemini, openai, claude, ollama)",
+                "description": "AI Provider (gemini, openai, claude, ollama, minimax, custom)",
             },
             "API_KEY": {
                 "value": "",
                 "required": False,
-                "description": "API Key (leave blank for ollama or if using environment variables)",
+                "description": "API Key (leave blank for local ollama or if using environment variables)",
             },
             "MODEL": {
                 "value": "gemini-2.5-flash",
                 "required": True,
-                "description": "Model name (e.g., gemini-2.5-flash, gpt-4o, claude-3-5-sonnet-20241022)",
+                "description": "Model name (e.g., gemini-2.5-flash, gpt-4o, minimax-m2.5)",
             },
-            "OLLAMA_URL": {
-                "value": "http://localhost:11434",
+            "BASE_URL": {
+                "value": "",
                 "required": False,
-                "description": "Ollama API URL (if provider is ollama)",
+                "description": "Custom Base URL (auto-set for known providers if left blank)",
             },
         }
 
@@ -101,7 +101,7 @@ Here are the modules you can run, along with their paths and required options:
 When the user asks you to do something, THINK if one of these modules applies. If so, return the JSON. I (the framework) will intercept your JSON, run the module in the background, capture its terminal output, and hand the output back to you so you can analyze the results for the user.
 """
 
-    def _init_ai_client(self, provider, api_key, model, ollama_url):
+    def _init_ai_client(self, provider, api_key, model, base_url):
         """Initialize the requested AI provider."""
         if provider == "gemini":
             try:
@@ -118,12 +118,24 @@ When the user asks you to do something, THINK if one of these modules applies. I
                 error("google-generativeai not installed. Run: pip install google-generativeai")
                 return None, None
                 
-        elif provider == "openai":
+        elif provider in ["openai", "minimax", "custom"]:
             try:
                 from openai import OpenAI
-                client = OpenAI(api_key=api_key)
+                
+                # Auto-set Base URLs for specific providers if not provided
+                if not base_url:
+                    if provider == "minimax":
+                        base_url = "https://api.minimax.chat/v1"
+                    elif provider == "openai":
+                        base_url = "https://api.openai.com/v1"
+                        
+                client_args = {"api_key": api_key}
+                if base_url:
+                    client_args["base_url"] = base_url
+                    
+                client = OpenAI(**client_args)
                 messages = [{"role": "system", "content": self._get_system_prompt()}]
-                return (client, model, messages), "openai"
+                return (client, model, messages), provider
             except ImportError:
                 error("openai not installed. Run: pip install openai")
                 return None, None
@@ -141,14 +153,19 @@ When the user asks you to do something, THINK if one of these modules applies. I
                 
         elif provider == "ollama":
             try:
+                if not base_url:
+                    base_url = "http://localhost:11434"
                 import requests
+                headers = {}
+                if api_key:
+                    headers['Authorization'] = f"Bearer {api_key}"
                 # Just verify connection
-                r = requests.get(f"{ollama_url}/api/version", timeout=2)
+                r = requests.get(f"{base_url}/api/version", headers=headers, timeout=2)
                 r.raise_for_status()
                 messages = [{"role": "system", "content": self._get_system_prompt()}]
-                return (ollama_url, model, messages), "ollama"
+                return (base_url, model, messages, headers), "ollama"
             except (ImportError, requests.RequestException) as e:
-                error(f"Failed to connect to Ollama at {ollama_url}: {e}")
+                error(f"Failed to connect to Ollama at {base_url}: {e}")
                 return None, None
                 
         else:
@@ -163,7 +180,7 @@ When the user asks you to do something, THINK if one of these modules applies. I
                 response = chat.send_message(user_input)
                 return response.text
                 
-            elif provider == "openai":
+            elif provider in ["openai", "minimax", "custom"]:
                 client, model, messages = client_data
                 messages.append({"role": "user", "content": user_input})
                 response = client.chat.completions.create(
@@ -188,7 +205,7 @@ When the user asks you to do something, THINK if one of these modules applies. I
                 return reply
                 
             elif provider == "ollama":
-                ollama_url, model, messages = client_data
+                base_url, model, messages, headers = client_data
                 import requests
                 messages.append({"role": "user", "content": user_input})
                 payload = {
@@ -196,7 +213,7 @@ When the user asks you to do something, THINK if one of these modules applies. I
                     "messages": messages,
                     "stream": False
                 }
-                r = requests.post(f"{ollama_url}/api/chat", json=payload)
+                r = requests.post(f"{base_url}/api/chat", json=payload, headers=headers)
                 reply = r.json()["message"]["content"]
                 messages.append({"role": "assistant", "content": reply})
                 return reply
@@ -272,7 +289,7 @@ When the user asks you to do something, THINK if one of these modules applies. I
         provider = self.get_option("PROVIDER").lower()
         api_key = self.get_option("API_KEY")
         model = self.get_option("MODEL")
-        ollama_url = self.get_option("OLLAMA_URL")
+        base_url = self.get_option("BASE_URL")
         
         if provider != "ollama" and not api_key:
             warning(f"No API key provided for {provider}. Checking environment variables...")
@@ -283,7 +300,7 @@ When the user asks you to do something, THINK if one of these modules applies. I
         self.loader = ModuleLoader()
         self.available_tools = self._get_module_descriptions()
 
-        client_data, active_provider = self._init_ai_client(provider, api_key, model, ollama_url)
+        client_data, active_provider = self._init_ai_client(provider, api_key, model, base_url)
         
         if not client_data:
             return

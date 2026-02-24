@@ -17,5 +17,8 @@ google-generativeai>=0.6.0
 openai>=1.0.0
 anthropic>=0.18.0
 
+# Wireless Scanning
+bleak>=0.21.0
+
 # Firmware Analysis
 # Note: binwalk must be installed separately (apt install binwalk / brew install binwalk)

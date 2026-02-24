@@ -1,40 +1,72 @@
 """
-IoTwizz Module: BLE Scanner [STUB]
-Scan and enumerate Bluetooth Low Energy (BLE) devices.
+IoTwizz Module: BLE Scanner
+Scan and discover Bluetooth Low Energy devices.
 """
+import asyncio
+try:
+    from bleak import BleakScanner
+except ImportError:
+    pass
+from iotwizz.base_module import BaseModule
+from iotwizz.utils.colors import success, error, warning, info, print_table, console
 
-from iotwizz.base_module import StubModule
-
-
-class BleScanner(StubModule):
-    """Scan and enumerate BLE devices. [Coming Soon]"""
-
+class BleScanner(BaseModule):
     def __init__(self):
         super().__init__()
-        self.name = "BLE Scanner"
-        self.description = "Scan and enumerate Bluetooth Low Energy (BLE) devices [Coming Soon]"
+        self.name = "Bluetooth LE Scanner"
+        self.description = "Discover nearby Bluetooth Low Energy devices"
         self.author = "IoTwizz Team"
         self.category = "wireless"
-
+        
         self.options = {
-            "INTERFACE": {
-                "value": "hci0",
-                "required": False,
-                "description": "Bluetooth adapter interface (default: hci0)",
-            },
-            "SCAN_DURATION": {
+            "TIMEOUT": {
                 "value": "10",
-                "required": False,
-                "description": "Scan duration in seconds (default: 10)",
-            },
-            "TARGET_MAC": {
-                "value": "",
-                "required": False,
-                "description": "Specific MAC to probe (scans all if empty)",
-            },
-            "ENUM_SERVICES": {
-                "value": "true",
-                "required": False,
-                "description": "Enumerate GATT services on found devices (default: true)",
-            },
+                "required": True,
+                "description": "Scan duration in seconds",
+            }
         }
+        
+    def run(self):
+        try:
+            import bleak
+        except ImportError:
+            error("bleak is not installed. Run: pip install bleak")
+            return
+            
+        timeout = int(self.get_option("TIMEOUT"))
+        info(f"Scanning for BLE devices for {timeout} seconds...")
+        
+        async def scan():
+            devices = await BleakScanner.discover(timeout=timeout)
+            
+            if not devices:
+                warning("No BLE devices found.")
+                return
+                
+            success(f"Found {len(devices)} devices:")
+            
+            columns = [
+                ("MAC Address / UUID", "cyan"),
+                ("Name", "white"),
+                ("RSSI", "yellow"),
+            ]
+            
+            rows = []
+            for d in devices:
+                name = d.name or "Unknown"
+                rssi = str(d.rssi) + " dBm"
+                rows.append((d.address, name, rssi))
+                
+            print_table("BLE Devices Discovered", columns, rows)
+            
+            # Additional details
+            console.print("\n[dim]Device Details:[/dim]")
+            for d in devices:
+                if d.details or d.metadata:
+                    console.print(f"  [cyan]{d.address}[/cyan] UUIDs: {d.metadata.get('uuids', [])}")
+        
+        try:
+            asyncio.run(scan())
+        except Exception as e:
+            error(f"BLE Scan failed: {e}")
+            info("Ensure Bluetooth is enabled and you have sufficient privileges.")

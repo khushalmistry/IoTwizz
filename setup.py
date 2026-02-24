@@ -42,7 +42,8 @@ setup(
         "requests>=2.28.0",
         "google-generativeai>=0.6.0",
         "openai>=1.0.0",
-        "anthropic>=0.18.0"
+        "anthropic>=0.18.0",
+        "bleak>=0.21.0"
     ],
     entry_points={
         "console_scripts": [
