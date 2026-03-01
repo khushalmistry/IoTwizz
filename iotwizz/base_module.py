@@ -28,18 +28,32 @@ class BaseModule(ABC):
         self._is_stub = False
 
     def get_option(self, name: str):
-        """Get the value of an option.
-
-        Args:
-            name: Option name (case-insensitive)
-
-        Returns:
-            Option value, or None if not found
-        """
+        """Get the value of an option as string."""
         name_upper = name.upper()
         if name_upper in self.options:
-            return self.options[name_upper].get("value")
-        return None
+            val = self.options[name_upper].get("value")
+            return val if val is not None else ""
+        return ""
+
+    def get_option_int(self, name: str, default: int = 0) -> int:
+        """Safely get an option as an integer, swallowing ValueErrors."""
+        val = self.get_option(name)
+        try:
+            return int(val)
+        except (ValueError, TypeError):
+            from iotwizz.utils.colors import warning
+            warning(f"Invalid integer for {name}: '{val}'. Using default {default}.")
+            return default
+
+    def get_option_float(self, name: str, default: float = 0.0) -> float:
+        """Safely get an option as a float, swallowing ValueErrors."""
+        val = self.get_option(name)
+        try:
+            return float(val)
+        except (ValueError, TypeError):
+            from iotwizz.utils.colors import warning
+            warning(f"Invalid float for {name}: '{val}'. Using default {default}.")
+            return default
 
     def set_option(self, name: str, value: str) -> bool:
         """Set the value of an option.

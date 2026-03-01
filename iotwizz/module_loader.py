@@ -30,10 +30,10 @@ class ModuleLoader:
                 continue
 
             for filename in os.listdir(category_path):
-                if filename.startswith("_") or not filename.endswith(".py"):
+                if filename.startswith("_") or not (filename.endswith(".py") or filename.endswith(".pyc")):
                     continue
 
-                module_name = filename[:-3]  # strip .py
+                module_name = filename.rsplit(".", 1)[0]  # strip extension
                 module_path = f"{category}/{module_name}"
 
                 try:

@@ -1,24 +1,31 @@
 # IoTwizz Dependencies
-# Core
+# ====================
+
+# Core Framework
 rich>=13.0.0
 prompt-toolkit>=3.0.0
 
-# Serial/Hardware
+# Serial/Hardware Communication
 pyserial>=3.5
 
-# Network/Protocol
+# Network Protocols
 paho-mqtt>=1.6.0
 scapy>=2.5.0
 paramiko>=3.0.0
 requests>=2.28.0
 
-# AI/Wizz Mode
-google-generativeai>=0.6.0
-openai>=1.0.0
-anthropic>=0.18.0
+# AI Providers (all optional - install as needed)
+google-generativeai>=0.6.0  # For Gemini
+openai>=1.0.0               # For OpenAI, DeepSeek, Ollama, custom endpoints
+anthropic>=0.18.0           # For Claude
 
-# Wireless Scanning
-bleak>=0.21.0
+# Wireless
+bleak>=0.21.0               # For BLE scanning
 
-# Firmware Analysis
-# Note: binwalk must be installed separately (apt install binwalk / brew install binwalk)
+# Build (optional)
+pyinstaller>=6.0.0          # For building standalone binaries
+
+# Note: Some tools require system packages:
+# - binwalk: Install via system package manager (apt install binwalk / brew install binwalk)
+# - openocd: Install via system package manager for JTAG/SWD scanning
+# - flashrom: Install via system package manager for SPI flash dumping

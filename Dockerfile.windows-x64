@@ -1,0 +1,41 @@
+# IoTwizz Builder - Windows x64
+# Requires Windows container or cross-compilation
+FROM mcr.microsoft.com/windows/python:3.11
+
+WORKDIR /app
+
+# Copy project files
+COPY requirements.txt .
+COPY iotwizz ./iotwizz
+COPY data ./data
+COPY setup.py .
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir pyinstaller
+
+# Build binary
+RUN pyinstaller --name iotwizz --onefile --console --clean \
+    --add-data "data;data" \
+    --add-data "iotwizz;iotwizz" \
+    --hidden-import paho.mqtt.client \
+    --hidden-import bleak \
+    --hidden-import serial \
+    --hidden-import serial.tools \
+    --hidden-import serial.tools.list_ports \
+    --hidden-import paramiko \
+    --hidden-import scapy \
+    --hidden-import prompt_toolkit \
+    --hidden-import prompt_toolkit.input \
+    --hidden-import prompt_toolkit.output \
+    --hidden-import rich \
+    --hidden-import google.generativeai \
+    --hidden-import openai \
+    --hidden-import anthropic \
+    --collect-all paho \
+    --collect-all prompt_toolkit \
+    --collect-all rich \
+    iotwizz/main.py
+
+# Output
+ENTRYPOINT ["copy", "dist\\iotwizz.exe", "C:\\output\\iotwizz-windows-x64.exe"]
