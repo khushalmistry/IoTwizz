@@ -265,7 +265,9 @@ For providing guidance without execution:
                 )
                 return client.start_chat(history=[]), "gemini"
             except ImportError:
-                error("google-generativeai not installed. Run: pip install google-generativeai")
+                error("google-generativeai not installed")
+                info("Install with: pip install google-generativeai")
+                info("Get your API key from: https://makersuite.google.com/app/apikey")
                 return None, None
 
         elif provider in ["openai", "deepseek", "minimax", "custom"]:
@@ -289,7 +291,14 @@ For providing guidance without execution:
                 return (client, model or self._get_default_model(provider), [{"role": "system", "content": self._get_system_prompt()}]), provider
                 
             except ImportError:
-                error("openai not installed. Run: pip install openai")
+                error("openai not installed")
+                info("Install with: pip install openai")
+                if provider == "openai":
+                    info("Get your API key from: https://platform.openai.com/api-keys")
+                elif provider == "deepseek":
+                    info("Get your API key from: https://platform.deepseek.com")
+                elif provider == "minimax":
+                    info("Get your API key from: https://api.minimax.chat")
                 return None, None
 
         elif provider == "claude":
@@ -300,7 +309,9 @@ For providing guidance without execution:
                 return (client, model or self._get_default_model("claude"), self._get_system_prompt()), "claude"
                 
             except ImportError:
-                error("anthropic not installed. Run: pip install anthropic")
+                error("anthropic not installed")
+                info("Install with: pip install anthropic")
+                info("Get your API key from: https://console.anthropic.com")
                 return None, None
 
         elif provider == "ollama":
@@ -308,13 +319,15 @@ For providing guidance without execution:
                 from openai import OpenAI
                 
                 client = OpenAI(
-                    base_url=base_url or "http://localhost:11434/v1",
+                    base_url=base_url if base_url else "http://localhost:11434/v1",
                     api_key="ollama",  # Ollama doesn't need a real key
                 )
                 return (client, model or self._get_default_model("ollama"), [{"role": "system", "content": self._get_system_prompt()}]), "ollama"
                 
             except ImportError:
-                error("openai not installed for Ollama. Run: pip install openai")
+                error("openai not installed for Ollama")
+                info("Install with: pip install openai")
+                info("Ollama uses OpenAI-compatible API")
                 return None, None
 
         else:
