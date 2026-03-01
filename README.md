@@ -287,38 +287,6 @@ This project is licensed under the **Creative Commons Attribution-NonCommercial 
 
 ---
 
-## Acknowledgments
-
-- Inspired by [Metasploit Framework](https://www.metasploit.com/)
-- Built with [Rich](https://github.com/Textualize/rich) and [prompt-toolkit](https://github.com/prompt-toolkit/python-prompt-toolkit)
-- Thanks to the IoT security research community
-
----
-
-<div align="center">
-
-  <img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&height=80&section=footer&animation=twinkling" />
-
-  <br/>
-
-  <strong>Built by <a href="https://github.com/khushalmistry">Khushal Mistry</a></strong>
-
-  <p>
-    <a href="https://github.com/khushalmistry"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white" alt="GitHub"/></a>
-  </p>
-
-  <br/>
-
-  <em>Happy Hacking 💀</em>
-
-  <br/><br/>
-
-  <img src="https://komarev.com/ghpvc/?username=khushalmistry&repo=iotwizz&color=00D4AA&style=for-the-badge" alt="Profile Views" />
-
-</div>
-
----
-
 ## Building Standalone Binaries
 
 IoTwizz can be compiled into standalone binaries that don't require Python installation.
@@ -411,3 +379,38 @@ Supported AI providers:
 - **Build System**: Cross-platform binaries for 6 architectures
 - **Configuration**: User config directory, workspace support
 
+
+
+---
+
+## Acknowledgments
+
+- Inspired by [Metasploit Framework](https://www.metasploit.com/)
+- Built with [Rich](https://github.com/Textualize/rich) and [prompt-toolkit](https://github.com/prompt-toolkit/python-prompt-toolkit)
+- Thanks to the IoT security research community
+
+---
+
+<div align="center">
+
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&height=80&section=footer&animation=twinkling" />
+
+  <br/>
+
+  <strong>Built by <a href="https://github.com/khushalmistry">Khushal Mistry</a></strong>
+
+  <p>
+    <a href="https://github.com/khushalmistry"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white" alt="GitHub"/></a>
+  </p>
+
+  <br/>
+
+  <em>Happy Hacking 💀</em>
+
+  <br/><br/>
+
+  <img src="https://komarev.com/ghpvc/?username=khushalmistry&repo=iotwizz&color=00D4AA&style=for-the-badge" alt="Profile Views" />
+
+</div>
+
+---
