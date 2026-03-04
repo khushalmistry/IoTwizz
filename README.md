@@ -380,7 +380,6 @@ Supported AI providers:
 - **Configuration**: User config directory, workspace support
 
 
-
 ---
 
 ## Acknowledgments
